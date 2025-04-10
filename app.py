@@ -470,28 +470,13 @@ if uploaded_file is not None:
         st.pyplot(fig)
         
 
-        
-
-
-        
-
-        
-
-
-        
-
-        
-
-
-
-
     # ------------------------------
     # Prediction Section (Triggered from Sidebar)
     # ------------------------------
     if do_predictions:
         with st.spinner("Processing predictions..."):
             # Load the model (ensure xgb_model2.pkl is in the same directory)
-            with open("xgb_model2.pkl", "rb") as model_file:
+            with open("results/xgb_model6.pkl", "rb") as model_file:
                 model = joblib.load(model_file)
 
             # Overall Prediction on full track
@@ -514,8 +499,8 @@ if uploaded_file is not None:
             num_samples_per_chunk = int(chunk_duration * sr)
             num_chunks = int(math.ceil(len(audio_mono) / num_samples_per_chunk))
 
-            time_points = []  # midpoints for each chunk
-            predictions_list = []  # probabilities for each chunk
+            time_points = [] 
+            predictions_list = []  
 
             for i in range(num_chunks):
                 start = i * num_samples_per_chunk
@@ -548,7 +533,6 @@ if uploaded_file is not None:
             st.subheader("Prediction Data (per segment)")
             st.dataframe(predictions_df)
 
-    # Clean up temporary file when done
     if os.path.exists(tmp_path):
         os.unlink(tmp_path)
 else:
