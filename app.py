@@ -11,55 +11,55 @@ import pandas as pd
 import math
 from scipy.signal import find_peaks
 
-# Page configuration
-st.set_page_config(page_title="Audio Analyzer", layout="wide")
-st.title("🎵 Audio Analyzer")
+# Configuration de la page
+st.set_page_config(page_title="Analyseur Audio", layout="wide")
+st.title("🎵 Analyseur Audio")
 
 # ------------------------------
-# Sidebar: File Upload, Audio Player & Prediction Button
+# Barre latérale : Téléchargement de fichier, lecteur audio et bouton de prédiction
 # ------------------------------
-st.sidebar.header("Upload & Controls")
-uploaded_file = st.sidebar.file_uploader("Upload an audio file (MP3/WAV)", type=["wav", "mp3"])
+st.sidebar.header("Téléchargement et Contrôles")
+uploaded_file = st.sidebar.file_uploader("Téléchargez un fichier audio (MP3/WAV)", type=["wav", "mp3"])
 
-# Sidebar: Chunk Duration Selection
-st.sidebar.subheader("Chunk Duration")
+# Barre latérale : Sélection de la durée des segments
+st.sidebar.subheader("Durée des segments")
 chunk_duration = st.sidebar.slider(
-    "Select the chunk duration (in seconds):",
+    "Sélectionnez la durée des segments (en secondes) :",
     min_value=1,
     max_value=30,
-    value=10,  # Default value
+    value=10,  # Valeur par défaut
     step=1
 )
 
-# Initialize prediction flag
+# Initialisation du drapeau de prédiction
 do_predictions = False
 
 if uploaded_file is not None:
-    # Save the uploaded file temporarily
+    # Sauvegarder temporairement le fichier téléchargé
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3" if uploaded_file.type == "audio/mpeg" else ".wav") as tmp_file:
         tmp_file.write(uploaded_file.getvalue())
         tmp_path = tmp_file.name
 
-    # Load audio with librosa
+    # Charger l'audio avec librosa
     y, sr = librosa.load(tmp_path, mono=False, sr=None)
-    # Convert to mono if needed for processing over time
+    # Convertir en mono si nécessaire pour le traitement
     audio_mono = librosa.to_mono(y) if y.ndim > 1 else y
 
-    # Sidebar Audio Player
+    # Lecteur audio dans la barre latérale
     st.sidebar.audio(uploaded_file)
     
-    # Sidebar Prediction Button
-    if st.sidebar.button("Make Predictions"):
+    # Bouton de prédiction dans la barre latérale
+    if st.sidebar.button("Faire des prédictions"):
         do_predictions = True
 
-    if(st.sidebar.button("Visualizations")):
+    if st.sidebar.button("Visualisations"):
         do_predictions = False
 
 # ------------------------------
-# Helper Functions
+# Fonctions auxiliaires
 # ------------------------------
 def analyze_audio(y, sr):
-    """Extract audio features from a time series and sample rate."""
+    """Extraire les caractéristiques audio d'une série temporelle et d'une fréquence d'échantillonnage."""
     if y.ndim > 1:
         y = np.mean(y, axis=0)
 
@@ -98,6 +98,8 @@ def analyze_audio(y, sr):
         features[f"mfcc{i+1}_var"] = mfcc[i].var()
     return features
 
+# Continuez à traduire les autres sections de votre code de manière similaire.
+
 def build_features_array(features):
     """Build a features array in the same order used during model training."""
     feature_list = [
@@ -134,25 +136,26 @@ if uploaded_file is not None:
     duration = librosa.get_duration(y=y, sr=sr)
 
     # Display Metadata
-    st.subheader("📋 Metadata")
-    st.write(f"**File Name:** {uploaded_file.name}")
-    st.write(f"**File Size:** {uploaded_file.size/1024:.2f} KB")
-    st.write(f"**Format:** {uploaded_file.type}")
-    st.write(f"**Channels:** {channels}")
-    st.write(f"**Sample Rate:** {sr} Hz")
-    st.write(f"**Duration:** {duration:.2f} seconds")
-    st.write(f"**Number of Samples:** {len(y)}")
+    # Affichage des métadonnées
+    st.subheader("📋 Métadonnées")
+    st.write(f"**Nom du fichier :** {uploaded_file.name}")
+    st.write(f"**Taille du fichier :** {uploaded_file.size/1024:.2f} KB")
+    st.write(f"**Format :** {uploaded_file.type}")
+    st.write(f"**Canaux :** {channels}")
+    st.write(f"**Fréquence d'échantillonnage :** {sr} Hz")
+    st.write(f"**Durée :** {duration:.2f} secondes")
+    st.write(f"**Nombre d'échantillons :** {len(y)}")
 
     # Full track feature analysis
     full_features = analyze_audio(y, sr)
     if(do_predictions == False):
         # Waveform Visualization
         st.subheader("🎨 Visualizations")
-        st.markdown("### Waveform Visualization")
+        st.markdown("### Visualisation de la forme d'onde")
         st.markdown("""
-    The waveform shows how the amplitude of the audio signal varies over time. Each point on the plot corresponds to a sample in the audio file. The X-axis represents time in seconds, while the Y-axis represents the amplitude of the signal. 
-    If the audio contains multiple channels, each channel's waveform will be plotted separately.
-    """)
+        La forme d'onde montre comment l'amplitude du signal audio varie dans le temps.  
+        L'axe X représente le temps (en secondes) et l'axe Y représente l'amplitude du signal.
+        """)
         
         fig1, ax1 = plt.subplots(figsize=(10, 3))
         if y.ndim == 1:
@@ -167,10 +170,10 @@ if uploaded_file is not None:
         st.pyplot(fig1)
 
         # Fourier Transform Visualization Title and Description
-        st.markdown("### Fourier Transform Visualization")
+        st.markdown("### Visualisation de la Transformée de Fourier")
         st.markdown("""
-        The Fourier Transform decomposes the signal into its frequency components.  
-        This graph shows which frequencies are present and their intensity.
+        La Transformée de Fourier décompose le signal en ses composantes fréquentielles.  
+        Ce graphique montre les fréquences présentes et leur intensité.
         """)
         if y.ndim == 2:
             y = np.mean(y, axis=0)
@@ -193,10 +196,10 @@ if uploaded_file is not None:
 
         # Spectrogram Visualization
         # Spectrogram Visualization Title and Description
-        st.markdown("### Spectrogram Visualization")
+        st.markdown("### Visualisation du Spectrogramme")
         st.markdown("""
-        The spectrogram represents the frequency content of the audio signal over time. It is generated by applying the Short-Time Fourier Transform (STFT) to the audio signal. The X-axis shows time, while the Y-axis shows frequency. The color intensity represents the magnitude of the frequencies at each point in time. 
-        The spectrogram is often used to visualize the frequency spectrum and how it changes over time, and it is commonly used in music and speech processing.
+        Le spectrogramme représente le contenu fréquentiel du signal audio dans le temps.  
+        L'axe X montre le temps, l'axe Y montre les fréquences, et l'intensité des couleurs représente l'amplitude.
         """)
         fig2, ax2 = plt.subplots(figsize=(10, 4))
         if y.ndim == 1:
@@ -210,9 +213,10 @@ if uploaded_file is not None:
         st.pyplot(fig2)
 
         # Mel Spectrogram Visualization Title and Description
-        st.markdown("### Mel Spectrogram Visualization")
+        st.markdown("### Visualisation du Spectrogramme Mel")
         st.markdown("""
-        The Mel spectrogram is a representation of the audio signal's frequency content, but it uses a Mel scale instead of the linear frequency scale. The Mel scale is a perceptual scale of pitches that approximates the way humans perceive sound. This visualization is useful for speech and music analysis.
+        Le spectrogramme Mel utilise une échelle perceptuelle des fréquences, adaptée à la perception humaine.  
+        Il est utile pour l'analyse de la parole et de la musique.
         """)
         if y.ndim == 2:
             st.write("Stereo audio detected. Processing each channel separately.")
@@ -257,9 +261,10 @@ if uploaded_file is not None:
 
 
         # Chroma Feature Visualization Title and Description
-        st.markdown("### Chroma Feature Visualization")
+        st.markdown("### Visualisation des Caractéristiques Chroma")
         st.markdown("""
-        Chroma features represent the 12 different pitch classes in music (e.g., A, B, C, etc.). This visualization shows how the intensity of these pitch classes varies over time and is useful for analyzing harmony and chord progressions.
+        Les caractéristiques Chroma représentent les 12 classes de hauteur musicale (par exemple, Do, Ré, Mi, etc.).  
+        Cette visualisation montre comment l'intensité de ces classes varie dans le temps.
         """)
 
         if y.ndim == 2:
@@ -306,9 +311,10 @@ if uploaded_file is not None:
             st.pyplot(fig)
 
         # Zero-Crossing Rate Visualization Title and Description
-        st.markdown("### Zero-Crossing Rate Visualization")
+        st.markdown("### Visualisation du Taux de Passage par Zéro")
         st.markdown("""
-        The zero-crossing rate is the rate at which the audio signal changes its sign (crosses zero). This is a simple feature used in speech and music analysis to differentiate between voiced and unvoiced speech, or between noisy and clean signals.
+        Le taux de passage par zéro mesure la fréquence à laquelle le signal audio change de signe.  
+        Il est utilisé pour différencier les sons vocaux et non vocaux, ou les signaux bruyants et propres.
         """)
 
         if y.ndim == 2:
@@ -349,9 +355,9 @@ if uploaded_file is not None:
             # Display the plot in Streamlit
             st.pyplot(fig)
         
-        st.markdown("### spectral Centroid Visualization")
+        st.markdown("### Visualisation du Centroïde Spectral")
         st.markdown("""
-        The spectral centroid indicates the "brightness" of a sound. A higher centroid means that the energy is more concentrated in higher frequencies.
+        Le centroïde spectral indique la "brillance" d'un son. Un centroïde plus élevé signifie que l'énergie est davantage concentrée dans les hautes fréquences.
         """)
         if y.ndim == 2:
             y_mono = np.mean(y, axis=0)
@@ -376,14 +382,14 @@ if uploaded_file is not None:
     
         
 
-        st.markdown("### Harmonic-Percussive Source Separation")
+        st.markdown("### Séparation des Sources Harmoniques et Percussives")
         st.markdown("""
-        - The **harmonic component** contains pitched sounds (e.g., vocals, instruments).
-        - The **percussive component** contains transients and beats (e.g., drums).
+        - La **composante harmonique** contient les sons avec hauteur définie (par exemple, voix, instruments).
+        - La **composante percussive** contient les transitoires et les battements (par exemple, percussions).
         """)
         st.markdown("""
-        This graph overlays the harmonic (blue) and percussive (orange) components of the audio.  
-        It's useful for visualizing how each component contributes to the overall signal.
+        Ce graphique superpose les composantes harmoniques (bleu) et percussives (orange) du signal audio.  
+        Il est utile pour visualiser comment chaque composante contribue au signal global.
         """)
         if y.ndim == 2:
             y = np.mean(y, axis=0)
@@ -400,10 +406,11 @@ if uploaded_file is not None:
         st.pyplot(fig)
 
     
-        st.markdown("## Constant-Q Transform (CQT)")
+        st.markdown("## Transformée Constant-Q (CQT)")
         st.markdown("""
-        **🎧 Perceptual Feature (CQT):**  
-        CQT gives a logarithmic frequency scale similar to how we perceive pitch, making it useful for analyzing harmonic content in music.
+        **🎧 Caractéristique perceptuelle (CQT) :**  
+        La CQT utilise une échelle logarithmique des fréquences, similaire à la façon dont nous percevons la hauteur.  
+        Elle est utile pour analyser le contenu harmonique dans la musique.
         """)
         # Perceptual Feature: Constant-Q Transform
         CQT = librosa.amplitude_to_db(np.abs(librosa.cqt(y, sr=sr)), ref=np.max)
@@ -414,10 +421,10 @@ if uploaded_file is not None:
         fig_cqt.colorbar(img, ax=ax_cqt, format="%+2.0f dB")
         st.pyplot(fig_cqt)
 
-        st.markdown("### Tempo and Beat Tracking")
+        st.markdown("### Suivi du Tempo et des Battements")
         st.markdown("""
-        Tempo is the speed of the beat in music, measured in BPM (Beats Per Minute).  
-        The red dashed lines indicate the estimated beats in your audio.
+        Le tempo correspond à la vitesse des battements dans la musique, mesurée en BPM (Battements Par Minute).  
+        Les lignes rouges en pointillés indiquent les battements estimés dans votre audio.
         """)
 
         if y.ndim == 2:
@@ -429,10 +436,10 @@ if uploaded_file is not None:
 
         st.write(f"Tempo: {tempo[0]:.2f} BPM")
 
-        st.markdown("#### Beat Detection")
+        # st.markdown("#### Détection des Battements")
         st.markdown("""
-        This visualization shows the **beats** detected within the waveform, with **red circles** around each beat in the specified time range.  
-        You can adjust the **start time** and **end time** to zoom into a specific section of the audio.
+        Cette visualisation montre les **battements** détectés dans la forme d'onde, avec des **cercles rouges** autour de chaque battement dans la plage de temps spécifiée.  
+        Vous pouvez ajuster le **temps de début** et le **temps de fin** pour zoomer sur une section spécifique de l'audio.
         """)
         if y.ndim == 2:
             y = np.mean(y, axis=0)
@@ -440,8 +447,8 @@ if uploaded_file is not None:
         # Total duration of the audio
         total_duration = librosa.get_duration(y=y, sr=sr)
 
-        start_time = st.number_input("Start time (in seconds):", min_value=0.0, max_value=total_duration, value=0.0, step=0.1)
-        end_time = st.number_input("End time (in seconds):", min_value=start_time, max_value=total_duration, value=total_duration, step=0.1)
+        start_time = st.number_input("Temps de début (en secondes) :", min_value=0.0, max_value=total_duration, value=0.0, step=0.1)
+        end_time = st.number_input("Temps de fin (en secondes) :", min_value=start_time, max_value=total_duration, value=total_duration, step=0.1)        
         end_time = min(end_time, total_duration)  # Ensure end time does not exceed total duration
         start_sample = int(start_time * sr)
         end_sample = int((end_time+1) * sr)
@@ -461,8 +468,7 @@ if uploaded_file is not None:
                 ax.add_patch(plt.Circle((peak_time, y_cut[peak]), radius=0.02, color='r', fill=False, linewidth=2))  # Circle around the beat
 
         # Set labels and title
-        ax.set(title="Waveform with Beats Highlighted", xlabel="Time (s)", ylabel="Amplitude")
-
+        ax.set(title="Forme d'onde avec les battements mis en évidence", xlabel="Temps (s)", ylabel="Amplitude")
         # Adjust the x-axis to start from start_time and end at end_time
         ax.set_xlim(start_time, end_time)
 
@@ -494,8 +500,8 @@ if uploaded_file is not None:
             # ------------------------------
             # Genre Prediction Over Time
             # ------------------------------
-            st.subheader("⏱️ Genre Predictions Over Time")
-            st.write(f"The track is split into {chunk_duration}-second segments and predictions are plotted over time.")
+            st.subheader("⏱️ Prédictions des Genres au Fil du Temps")
+            st.write(f"La piste est divisée en segments de {chunk_duration} secondes, et les prédictions sont tracées au fil du temps.")            
             num_samples_per_chunk = int(chunk_duration * sr)
             num_chunks = int(math.ceil(len(audio_mono) / num_samples_per_chunk))
 
@@ -524,16 +530,16 @@ if uploaded_file is not None:
             for genre in class_labels:
                 ax3.plot(predictions_df["Time (s)"], predictions_df[genre] * 100,
                          marker='o', label=genre)
-            ax3.set_xlabel("Time (s)")
-            ax3.set_ylabel("Probability (%)")
-            ax3.set_title("Genre Predictions Over Time")
+            ax3.set_xlabel("Temps (s)")
+            ax3.set_ylabel("Probabilité (%)")
+            ax3.set_title("Prédictions des Genres au Fil du Temps")
             ax3.legend(loc="upper right", bbox_to_anchor=(1.15, 1))
             st.pyplot(fig3)
 
-            st.subheader("Prediction Data (per segment)")
+            st.subheader("Données de Prédiction (par segment)")
             st.dataframe(predictions_df)
 
     if os.path.exists(tmp_path):
         os.unlink(tmp_path)
 else:
-    st.info("⬆️ Please upload an audio file from the sidebar to start the analysis.")
+    st.info("⬆️ Veuillez télécharger un fichier audio depuis la barre latérale pour commencer l'analyse.")
