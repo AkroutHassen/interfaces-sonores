@@ -165,7 +165,7 @@ if uploaded_file is not None:
                 librosa.display.waveshow(y[i], sr=sr, ax=ax1, alpha=0.5, label=f"Channel {i+1}")
             ax1.legend()
         ax1.set_title("Waveform")
-        ax1.set_xlabel("Time (s)")
+        ax1.set_xlabel("Temp (s)")
         ax1.set_ylabel("Amplitude")
         st.pyplot(fig1)
 
@@ -210,6 +210,7 @@ if uploaded_file is not None:
         img = librosa.display.specshow(D, y_axis="log", x_axis="time", sr=sr, ax=ax2)
         fig2.colorbar(img, ax=ax2, format="%+2.0f dB")
         ax2.set_title("Spectrogram")
+        ax2.set_xlabel("Temp (s)")
         st.pyplot(fig2)
 
         # Mel Spectrogram Visualization Title and Description
@@ -219,7 +220,6 @@ if uploaded_file is not None:
         Il est utile pour l'analyse de la parole et de la musique.
         """)
         if y.ndim == 2:
-            st.write("Stereo audio detected. Processing each channel separately.")
 
             # Process the left and right channels separately
             S_left = librosa.feature.melspectrogram(y=y[0], sr=sr)  # Left channel (index 0)
@@ -235,11 +235,13 @@ if uploaded_file is not None:
             # Left channel plot
             img_left = librosa.display.specshow(S_left_db, y_axis='mel', x_axis='time', sr=sr, ax=ax1, cmap="cool")
             ax1.set_title("Left Channel Mel Spectrogram", fontsize=14)
+            ax1.set_ylabel("Mel")
             fig.colorbar(img_left, ax=ax1, format="%+2.0f dB")
 
             # Right channel plot
             img_right = librosa.display.specshow(S_right_db, y_axis='mel', x_axis='time', sr=sr, ax=ax2, cmap="cool")
             ax2.set_title("Right Channel Mel Spectrogram", fontsize=14)
+            ax2.set_ylabel("Mel")
             fig.colorbar(img_right, ax=ax2, format="%+2.0f dB")
 
             # Display the plots in Streamlit
@@ -254,6 +256,8 @@ if uploaded_file is not None:
             fig, ax = plt.subplots(figsize=(10, 4))
             img = librosa.display.specshow(S_db, y_axis='mel', x_axis='time', sr=sr, ax=ax, cmap="cool")
             fig.colorbar(img, ax=ax, format="%+2.0f dB")
+            ax.set_xlabel("Temp (s)")
+            ax.set_ylabel("Mel")
             ax.set_title("Mel Spectrogram", fontsize=14)
 
             # Display the plot in Streamlit
@@ -268,8 +272,6 @@ if uploaded_file is not None:
         """)
 
         if y.ndim == 2:
-            # Stereo audio: y has shape (2, n_samples), process each channel separately
-            st.write("Stereo audio detected. Processing each channel separately.")
             
             # Compute Chroma features for both channels (left and right)
             chroma_left = librosa.feature.chroma_stft(y=y[0], sr=sr)
@@ -281,14 +283,14 @@ if uploaded_file is not None:
             # Left channel plot
             librosa.display.specshow(chroma_left, y_axis='chroma', x_axis='time', ax=ax1, cmap="cool")
             ax1.set_title("Chroma Features - Left Channel", fontsize=14)
-            ax1.set_xlabel("Time (s)")
+            ax1.set_xlabel("Temp (s)")
             ax1.set_ylabel("Pitch Class")
             fig.colorbar(librosa.display.specshow(chroma_left, ax=ax1, cmap="cool"), ax=ax1, format="%+2.0f dB")
 
             # Right channel plot
             librosa.display.specshow(chroma_right, y_axis='chroma', x_axis='time', ax=ax2, cmap="cool")
             ax2.set_title("Chroma Features - Right Channel", fontsize=14)
-            ax2.set_xlabel("Time (s)")
+            ax2.set_xlabel("Temp (s)")
             ax2.set_ylabel("Pitch Class")
             fig.colorbar(librosa.display.specshow(chroma_right, ax=ax2, cmap="cool"), ax=ax2, format="%+2.0f dB")
 
@@ -303,7 +305,7 @@ if uploaded_file is not None:
             fig, ax = plt.subplots(figsize=(10, 4))
             librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap="cool")
             ax.set_title("Chroma Features", fontsize=14)
-            ax.set_xlabel("Time (s)")
+            ax.set_xlabel("Temp (s)")
             ax.set_ylabel("Pitch Class")
             fig.colorbar(librosa.display.specshow(chroma, ax=ax, cmap="cool"), ax=ax, format="%+2.0f dB")
 
@@ -329,13 +331,13 @@ if uploaded_file is not None:
             # Left channel plot
             ax1.plot(librosa.times_like(zcr_left), zcr_left[0], color='b')
             ax1.set_title("Zero Crossing Rate - Left Channel", fontsize=14)
-            ax1.set_xlabel("Time (s)")
+            ax1.set_xlabel("Temp (s)")
             ax1.set_ylabel("Zero Crossing Rate")
             
             # Right channel plot
             ax2.plot(librosa.times_like(zcr_right), zcr_right[0], color='r')
             ax2.set_title("Zero Crossing Rate - Right Channel", fontsize=14)
-            ax2.set_xlabel("Time (s)")
+            ax2.set_xlabel("Temp (s)")
             ax2.set_ylabel("Zero Crossing Rate")
 
             # Display the plots in Streamlit
@@ -349,7 +351,7 @@ if uploaded_file is not None:
             fig, ax = plt.subplots(figsize=(10, 4))
             ax.plot(librosa.times_like(zcr), zcr[0], color='g')
             ax.set_title("Zero Crossing Rate", fontsize=14)
-            ax.set_xlabel("Time (s)")
+            ax.set_xlabel("Temp (s)")
             ax.set_ylabel("Zero Crossing Rate")
             
             # Display the plot in Streamlit
@@ -374,7 +376,7 @@ if uploaded_file is not None:
         fig, ax = plt.subplots(figsize=(10, 4))
         ax.plot(times, spectral_centroid[0], color='m')
         ax.set_title("Spectral Centroid Over Time")
-        ax.set_xlabel("Time (s)")
+        ax.set_xlabel("Temp (s)")
         ax.set_ylabel("Hz")
         st.pyplot(fig)
 
@@ -401,7 +403,7 @@ if uploaded_file is not None:
         fig, ax = plt.subplots(figsize=(10, 4))
         librosa.display.waveshow(y_harmonic, sr=sr, alpha=0.6, label="Harmonic", color="blue", ax=ax)
         librosa.display.waveshow(y_percussive, sr=sr, alpha=0.6, label="Percussive", color="orange", ax=ax)
-        ax.set(title="Harmonic and Percussive Signals", xlabel="Time (s)", ylabel="Amplitude")
+        ax.set(title="Harmonic and Percussive Signals", xlabel="Temp (s)", ylabel="Amplitude")
         ax.legend()
         st.pyplot(fig)
 
@@ -490,7 +492,7 @@ if uploaded_file is not None:
             overall_probabilities = model.predict_proba(features_array, validate_features=False)[0]
             class_labels = model.classes_
 
-            st.subheader("🎯 Overall Predictions")
+            st.subheader("🎯 Prévisions générales")
             overall_df = pd.DataFrame({
                 "Genre": class_labels,
                 "Probability (%)": overall_probabilities * 100
@@ -530,7 +532,7 @@ if uploaded_file is not None:
             for genre in class_labels:
                 ax3.plot(predictions_df["Time (s)"], predictions_df[genre] * 100,
                          marker='o', label=genre)
-            ax3.set_xlabel("Temps (s)")
+            ax3.set_xlabel("Temp (s)")
             ax3.set_ylabel("Probabilité (%)")
             ax3.set_title("Prédictions des Genres au Fil du Temps")
             ax3.legend(loc="upper right", bbox_to_anchor=(1.15, 1))
