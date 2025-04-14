@@ -210,7 +210,7 @@ if uploaded_file is not None:
         img = librosa.display.specshow(D, y_axis="log", x_axis="time", sr=sr, ax=ax2)
         fig2.colorbar(img, ax=ax2, format="%+2.0f dB")
         ax2.set_title("Spectrogram")
-        ax2.set_xlabel("Temp (s)")
+        ax2.set_xlabel("Temps (s)")
         st.pyplot(fig2)
 
         # Mel Spectrogram Visualization Title and Description
@@ -256,7 +256,7 @@ if uploaded_file is not None:
             fig, ax = plt.subplots(figsize=(10, 4))
             img = librosa.display.specshow(S_db, y_axis='mel', x_axis='time', sr=sr, ax=ax, cmap="cool")
             fig.colorbar(img, ax=ax, format="%+2.0f dB")
-            ax.set_xlabel("Temp (s)")
+            ax.set_xlabel("Temps (s)")
             ax.set_ylabel("Mel")
             ax.set_title("Mel Spectrogram", fontsize=14)
 
@@ -264,52 +264,51 @@ if uploaded_file is not None:
             st.pyplot(fig)
 
 
-        # Chroma Feature Visualization Title and Description
+        # Visualisation des Caractéristiques Chroma
         st.markdown("### Visualisation des Caractéristiques Chroma")
         st.markdown("""
         Les caractéristiques Chroma représentent les 12 classes de hauteur musicale (par exemple, Do, Ré, Mi, etc.).  
         Cette visualisation montre comment l'intensité de ces classes varie dans le temps.
         """)
 
-        if y.ndim == 2:
-            
-            # Compute Chroma features for both channels (left and right)
+        if y.ndim == 2:  # Stéréo
+            # Calcul des caractéristiques Chroma pour les deux canaux
             chroma_left = librosa.feature.chroma_stft(y=y[0], sr=sr)
             chroma_right = librosa.feature.chroma_stft(y=y[1], sr=sr)
 
-            # Plot Chroma Features for Left and Right Channels
+            # Création des sous-graphiques pour les canaux gauche et droit
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
-            # Left channel plot
-            librosa.display.specshow(chroma_left, y_axis='chroma', x_axis='time', ax=ax1, cmap="cool")
-            ax1.set_title("Chroma Features - Left Channel", fontsize=14)
-            ax1.set_xlabel("Temp (s)")
-            ax1.set_ylabel("Pitch Class")
-            fig.colorbar(librosa.display.specshow(chroma_left, ax=ax1, cmap="cool"), ax=ax1, format="%+2.0f dB")
+            # Canal gauche
+            img_left = librosa.display.specshow(chroma_left, y_axis='chroma', x_axis='time', sr=sr, ax=ax1, cmap="cool")
+            ax1.set_title("Caractéristiques Chroma - Canal Gauche", fontsize=14)
+            ax1.set_xlabel("Temps (s)")
+            ax1.set_ylabel("Classe de Hauteur (Do, Ré, Mi, etc.)")
+            fig.colorbar(img_left, ax=ax1, format="%+2.0f dB")
 
-            # Right channel plot
-            librosa.display.specshow(chroma_right, y_axis='chroma', x_axis='time', ax=ax2, cmap="cool")
-            ax2.set_title("Chroma Features - Right Channel", fontsize=14)
-            ax2.set_xlabel("Temp (s)")
-            ax2.set_ylabel("Pitch Class")
-            fig.colorbar(librosa.display.specshow(chroma_right, ax=ax2, cmap="cool"), ax=ax2, format="%+2.0f dB")
+            # Canal droit
+            img_right = librosa.display.specshow(chroma_right, y_axis='chroma', x_axis='time', sr=sr, ax=ax2, cmap="cool")
+            ax2.set_title("Caractéristiques Chroma - Canal Droit", fontsize=14)
+            ax2.set_xlabel("Temps (s)")
+            ax2.set_ylabel("Classe de Hauteur (Do, Ré, Mi, etc.)")
+            fig.colorbar(img_right, ax=ax2, format="%+2.0f dB")
 
-            # Display the plots in Streamlit
+            # Affichage des graphiques dans Streamlit
             st.pyplot(fig)
 
-        else:       
-            # Compute Chroma features for mono audio
+        else:  # Mono
+            # Calcul des caractéristiques Chroma pour l'audio mono
             chroma = librosa.feature.chroma_stft(y=y, sr=sr)
 
-            # Plot Chroma Features
+            # Création du graphique
             fig, ax = plt.subplots(figsize=(10, 4))
-            librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap="cool")
-            ax.set_title("Chroma Features", fontsize=14)
-            ax.set_xlabel("Temp (s)")
-            ax.set_ylabel("Pitch Class")
-            fig.colorbar(librosa.display.specshow(chroma, ax=ax, cmap="cool"), ax=ax, format="%+2.0f dB")
+            img = librosa.display.specshow(chroma, y_axis='chroma', x_axis='time', sr=sr, ax=ax, cmap="cool")
+            ax.set_title("Caractéristiques Chroma", fontsize=14)
+            ax.set_xlabel("Temps (s)")
+            ax.set_ylabel("Classe de Hauteur (Do, Ré, Mi, etc.)")
+            fig.colorbar(img, ax=ax, format="%+2.0f dB")
 
-            # Display the plot in Streamlit
+            # Affichage du graphique dans Streamlit
             st.pyplot(fig)
 
         # Zero-Crossing Rate Visualization Title and Description
@@ -331,13 +330,13 @@ if uploaded_file is not None:
             # Left channel plot
             ax1.plot(librosa.times_like(zcr_left), zcr_left[0], color='b')
             ax1.set_title("Zero Crossing Rate - Left Channel", fontsize=14)
-            ax1.set_xlabel("Temp (s)")
+            ax1.set_xlabel("Temps (s)")
             ax1.set_ylabel("Zero Crossing Rate")
             
             # Right channel plot
             ax2.plot(librosa.times_like(zcr_right), zcr_right[0], color='r')
             ax2.set_title("Zero Crossing Rate - Right Channel", fontsize=14)
-            ax2.set_xlabel("Temp (s)")
+            ax2.set_xlabel("Temps (s)")
             ax2.set_ylabel("Zero Crossing Rate")
 
             # Display the plots in Streamlit
@@ -351,7 +350,7 @@ if uploaded_file is not None:
             fig, ax = plt.subplots(figsize=(10, 4))
             ax.plot(librosa.times_like(zcr), zcr[0], color='g')
             ax.set_title("Zero Crossing Rate", fontsize=14)
-            ax.set_xlabel("Temp (s)")
+            ax.set_xlabel("Temps (s)")
             ax.set_ylabel("Zero Crossing Rate")
             
             # Display the plot in Streamlit
@@ -376,7 +375,7 @@ if uploaded_file is not None:
         fig, ax = plt.subplots(figsize=(10, 4))
         ax.plot(times, spectral_centroid[0], color='m')
         ax.set_title("Spectral Centroid Over Time")
-        ax.set_xlabel("Temp (s)")
+        ax.set_xlabel("Temps (s)")
         ax.set_ylabel("Hz")
         st.pyplot(fig)
 
@@ -403,7 +402,7 @@ if uploaded_file is not None:
         fig, ax = plt.subplots(figsize=(10, 4))
         librosa.display.waveshow(y_harmonic, sr=sr, alpha=0.6, label="Harmonic", color="blue", ax=ax)
         librosa.display.waveshow(y_percussive, sr=sr, alpha=0.6, label="Percussive", color="orange", ax=ax)
-        ax.set(title="Harmonic and Percussive Signals", xlabel="Temp (s)", ylabel="Amplitude")
+        ax.set(title="Harmonic and Percussive Signals", xlabel="Temps (s)", ylabel="Amplitude")
         ax.legend()
         st.pyplot(fig)
 
@@ -532,7 +531,7 @@ if uploaded_file is not None:
             for genre in class_labels:
                 ax3.plot(predictions_df["Time (s)"], predictions_df[genre] * 100,
                          marker='o', label=genre)
-            ax3.set_xlabel("Temp (s)")
+            ax3.set_xlabel("Temps (s)")
             ax3.set_ylabel("Probabilité (%)")
             ax3.set_title("Prédictions des Genres au Fil du Temps")
             ax3.legend(loc="upper right", bbox_to_anchor=(1.15, 1))
